@@ -1,0 +1,141 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #222;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1a2b45;
+  color: white;
+  padding: 16px 32px;
+}
+
+.header .logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.header nav a {
+  margin-left: 20px;
+  color: #d8e1f0;
+  font-weight: 500;
+}
+
+.header nav a:hover {
+  color: white;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+/* Buttons */
+.btn {
+  background-color: #2e6bf2;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.btn:hover {
+  background-color: #1e4fc4;
+}
+
+.btn-secondary {
+  background-color: #e2e6ea;
+  color: #333;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}
+
+.dealer-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.state-filter {
+  margin-bottom: 20px;
+}
+
+.state-filter select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Reviews */
+.review-card {
+  border-left: 4px solid #2e6bf2;
+}
+
+.sentiment-positive {
+  color: #1e7d32;
+  font-weight: 600;
+}
+
+.sentiment-negative {
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.sentiment-neutral {
+  color: #866a00;
+  font-weight: 600;
+}
+
+/* Forms */
+form label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+form input,
+form textarea,
+form select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.error-text {
+  color: #b3261e;
+  margin-top: 8px;
+}

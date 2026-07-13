@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-analyzer
+  namespace: cars-dealership
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sentiment-analyzer
+  template:
+    metadata:
+      labels:
+        app: sentiment-analyzer
+    spec:
+      containers:
+        - name: sentiment-analyzer
+          image: <YOUR_REGISTRY>/cars-dealership-sentiment:latest
+          ports:
+            - containerPort: 5050
+          env:
+            - name: PORT
+              value: "5050"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5050
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5050
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-analyzer
+  namespace: cars-dealership
+spec:
+  selector:
+    app: sentiment-analyzer
+  ports:
+    - port: 5050
+      targetPort: 5050

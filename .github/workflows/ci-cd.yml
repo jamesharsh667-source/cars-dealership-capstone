@@ -1,0 +1,131 @@
+name: CI/CD - Cars Dealership
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test-django:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: pip install flake8
+      - run: flake8 djangoapp djangoproj --max-line-length=120
+      - run: python manage.py test djangoapp
+
+  lint-and-test-node:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: database
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping:1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      MONGO_URI: mongodb://localhost:27017/dealershipsDB_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install
+      - run: npx eslint . --ext .js || true
+      - run: npm test
+
+  test-sentiment:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sentiment_analyzer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python -m nltk.downloader vader_lexicon
+      - run: pytest -v
+
+  build-and-test-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install
+      - run: CI=true npm test -- --watchAll=false
+      - run: npm run build
+
+  build-and-push-images:
+    needs: [lint-and-test-django, lint-and-test-node, test-sentiment, build-and-test-frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [server, database, sentiment_analyzer, frontend]
+        include:
+          - service: server
+            image: cars-dealership-django
+          - service: database
+            image: cars-dealership-node
+          - service: sentiment_analyzer
+            image: cars-dealership-sentiment
+          - service: frontend
+            image: cars-dealership-frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to IBM Cloud Container Registry
+        run: |
+          echo "${{ secrets.IBM_CLOUD_API_KEY }}" | docker login -u iamapikey --password-stdin ${{ secrets.ICR_REGISTRY }}
+
+      - name: Build image
+        run: |
+          docker build -t ${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/${{ matrix.image }}:${{ github.sha }} ./${{ matrix.service }}
+
+      - name: Push image
+        run: |
+          docker push ${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/${{ matrix.image }}:${{ github.sha }}
+
+  deploy-to-code-engine:
+    needs: build-and-push-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install IBM Cloud CLI + Code Engine plugin
+        run: |
+          curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+          ibmcloud plugin install code-engine -f
+
+      - name: Log in to IBM Cloud
+        run: |
+          ibmcloud login --apikey "${{ secrets.IBM_CLOUD_API_KEY }}" -r "${{ secrets.IBM_CLOUD_REGION }}"
+          ibmcloud ce project select --name "${{ secrets.CODE_ENGINE_PROJECT }}"
+
+      - name: Deploy each service revision
+        run: |
+          ibmcloud ce app update --name sentiment-analyzer --image "${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/cars-dealership-sentiment:${{ github.sha }}"
+          ibmcloud ce app update --name node-app --image "${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/cars-dealership-node:${{ github.sha }}"
+          ibmcloud ce app update --name django-app --image "${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/cars-dealership-django:${{ github.sha }}"
+          ibmcloud ce app update --name frontend --image "${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/cars-dealership-frontend:${{ github.sha }}"

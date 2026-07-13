@@ -1,0 +1,26 @@
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Proxying the API under the same origin as the frontend means the
+    # browser treats every request as same-origin, so Django's session
+    # cookie (used for login/register/add_review) just works — no CORS
+    # or SameSite cross-site cookie headaches in dev or prod.
+    location /djangoapp/ {
+        proxy_pass http://${DJANGO_UPSTREAM}/djangoapp/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static/ {
+        proxy_pass http://${DJANGO_UPSTREAM}/static/;
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+}

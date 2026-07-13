@@ -1,0 +1,19 @@
+# Python / Django
+__pycache__/
+*.pyc
+.pytest_cache/
+pytest-cache-files-*/
+db.sqlite3
+staticfiles/
+.env
+
+# Node
+node_modules/
+npm-debug.log
+
+# React build
+frontend/build/
+
+# Misc
+.DS_Store
+*.log

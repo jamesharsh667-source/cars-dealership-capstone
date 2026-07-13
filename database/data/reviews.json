@@ -1,0 +1,6 @@
+[
+  { "id": 1, "dealership": 1, "name": "Alice Johnson", "purchase": true, "review": "Great service and friendly staff. I love my new car!", "purchase_date": "01/15/2025", "car_make": "Toyota", "car_model": "Camry", "car_year": 2025 },
+  { "id": 2, "dealership": 1, "name": "Brian Lee", "purchase": false, "review": "The salesperson was pushy and I did not enjoy the experience.", "purchase_date": "02/02/2025", "car_make": "Honda", "car_model": "Civic", "car_year": 2024 },
+  { "id": 3, "dealership": 2, "name": "Carla Gomez", "purchase": true, "review": "Smooth process from start to finish, highly recommend this dealership.", "purchase_date": "03/10/2025", "car_make": "Ford", "car_model": "F-150", "car_year": 2025 },
+  { "id": 4, "dealership": 3, "name": "David Kim", "purchase": true, "review": "Average experience, nothing special but got the car I wanted.", "purchase_date": "04/05/2025", "car_make": "Chevrolet", "car_model": "Malibu", "car_year": 2023 }
+]
