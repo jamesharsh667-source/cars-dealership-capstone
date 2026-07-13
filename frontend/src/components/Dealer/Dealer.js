@@ -30,6 +30,12 @@ function Dealer({ userName }) {
   if (loading) return <div className="container">Loading…</div>;
   if (!dealer) return <div className="container">Dealer not found.</div>;
 
+  const getSentimentEmoji = (sentiment) => {
+    if (sentiment === 'positive') return '😄';
+    if (sentiment === 'negative') return '😞';
+    return '😐';
+  };
+
   return (
     <div className="container">
       <div className="card">
@@ -56,7 +62,12 @@ function Dealer({ userName }) {
             <strong>{r.name}</strong> — {r.car_year} {r.car_make} {r.car_model}
           </p>
           <p>{r.review}</p>
-          <p className={`sentiment-${r.sentiment}`}>Sentiment: {r.sentiment}</p>
+          <p className={`sentiment-${r.sentiment}`}>
+            <span style={{ marginRight: '8px', fontSize: '1.25rem', verticalAlign: 'middle' }}>
+              {getSentimentEmoji(r.sentiment)}
+            </span>
+            Sentiment: {r.sentiment}
+          </p>
         </div>
       ))}
     </div>
