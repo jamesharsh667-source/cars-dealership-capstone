@@ -78,9 +78,6 @@ def get_cars(request):
         {
             "CarModel": cm.name,
             "CarMake": cm.car_make.name,
-            "type": cm.type,
-            "year": cm.year,
-            "dealer_id": cm.dealer_id,
         }
         for cm in car_models
     ]
