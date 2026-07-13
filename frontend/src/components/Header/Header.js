@@ -11,6 +11,7 @@ function Header({ userName, onLogout }) {
     } catch (e) {
       // ignore network errors on logout
     }
+    alert('Logged out successfully');
     onLogout();
     navigate('/');
   };
