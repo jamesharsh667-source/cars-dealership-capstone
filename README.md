@@ -1,4 +1,4 @@
-# Cars Dealership — Full-Stack Capstone
+# fullstack_developer_capstone
 
 A responsive web app for **Cars Dealership**, a national car retailer, that
 lets customers find dealership branches and read/write reviews (with
