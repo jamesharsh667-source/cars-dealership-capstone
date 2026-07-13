@@ -42,9 +42,8 @@ def login_user(request):
 
 
 def logout_request(request):
-    username = request.user.username if request.user.is_authenticated else ""
     logout(request)
-    return JsonResponse({"userName": "", "previousUserName": username})
+    return JsonResponse({"userName": ""})
 
 
 @csrf_exempt
