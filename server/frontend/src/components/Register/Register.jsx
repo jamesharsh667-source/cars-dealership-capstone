@@ -46,22 +46,23 @@ function Register({ onLogin }) {
         <h1>Sign-up</h1>
         <form onSubmit={handleSubmit}>
           <label htmlFor="userName">Username</label>
-          <input id="userName" name="userName" value={form.userName} onChange={handleChange} required />
+          <input id="userName" name="userName" placeholder="Username" value={form.userName} onChange={handleChange} required />
 
           <label htmlFor="firstName">First Name</label>
-          <input id="firstName" name="firstName" value={form.firstName} onChange={handleChange} required />
+          <input id="firstName" name="firstName" placeholder="First Name" value={form.firstName} onChange={handleChange} required />
 
           <label htmlFor="lastName">Last Name</label>
-          <input id="lastName" name="lastName" value={form.lastName} onChange={handleChange} required />
+          <input id="lastName" name="lastName" placeholder="Last Name" value={form.lastName} onChange={handleChange} required />
 
           <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required />
+          <input id="email" name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
 
           <label htmlFor="password">Password</label>
           <input
             id="password"
             name="password"
             type="password"
+            placeholder="Password"
             value={form.password}
             onChange={handleChange}
             required
