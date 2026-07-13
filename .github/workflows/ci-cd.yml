@@ -95,37 +95,90 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to IBM Cloud Container Registry
+      - name: Check IBM registry secrets
+        id: registry_secrets
+        env:
+          IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+          ICR_REGISTRY: ${{ secrets.ICR_REGISTRY }}
+          ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
         run: |
-          echo "${{ secrets.IBM_CLOUD_API_KEY }}" | docker login -u iamapikey --password-stdin ${{ secrets.ICR_REGISTRY }}
+          if [ -n "$IBM_CLOUD_API_KEY" ] && [ -n "$ICR_REGISTRY" ] && [ -n "$ICR_NAMESPACE" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "IBM Cloud registry secrets are not configured; skipping image build and push."
+          fi
+
+      - name: Log in to IBM Cloud Container Registry
+        if: steps.registry_secrets.outputs.configured == 'true'
+        env:
+          IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+          ICR_REGISTRY: ${{ secrets.ICR_REGISTRY }}
+        run: |
+          echo "$IBM_CLOUD_API_KEY" | docker login -u iamapikey --password-stdin "$ICR_REGISTRY"
 
       - name: Build image
+        if: steps.registry_secrets.outputs.configured == 'true'
+        env:
+          ICR_REGISTRY: ${{ secrets.ICR_REGISTRY }}
+          ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
         run: |
-          docker build -t ${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/${{ matrix.image }}:${{ github.sha }} ./${{ matrix.service }}
+          docker build -t "$ICR_REGISTRY/$ICR_NAMESPACE/${{ matrix.image }}:${{ github.sha }}" ./${{ matrix.service }}
 
       - name: Push image
+        if: steps.registry_secrets.outputs.configured == 'true'
+        env:
+          ICR_REGISTRY: ${{ secrets.ICR_REGISTRY }}
+          ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
         run: |
-          docker push ${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/${{ matrix.image }}:${{ github.sha }}
+          docker push "$ICR_REGISTRY/$ICR_NAMESPACE/${{ matrix.image }}:${{ github.sha }}"
 
   deploy-to-code-engine:
     needs: build-and-push-images
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check IBM deployment secrets
+        id: deployment_secrets
+        env:
+          IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+          IBM_CLOUD_REGION: ${{ secrets.IBM_CLOUD_REGION }}
+          ICR_REGISTRY: ${{ secrets.ICR_REGISTRY }}
+          ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
+          CODE_ENGINE_PROJECT: ${{ secrets.CODE_ENGINE_PROJECT }}
+        run: |
+          if [ -n "$IBM_CLOUD_API_KEY" ] && [ -n "$IBM_CLOUD_REGION" ] && [ -n "$ICR_REGISTRY" ] && [ -n "$ICR_NAMESPACE" ] && [ -n "$CODE_ENGINE_PROJECT" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "IBM Cloud deployment secrets are not configured; skipping Code Engine deployment."
+          fi
+
       - name: Install IBM Cloud CLI + Code Engine plugin
+        if: steps.deployment_secrets.outputs.configured == 'true'
         run: |
           curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
           ibmcloud plugin install code-engine -f
 
       - name: Log in to IBM Cloud
+        if: steps.deployment_secrets.outputs.configured == 'true'
+        env:
+          IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+          IBM_CLOUD_REGION: ${{ secrets.IBM_CLOUD_REGION }}
+          CODE_ENGINE_PROJECT: ${{ secrets.CODE_ENGINE_PROJECT }}
         run: |
-          ibmcloud login --apikey "${{ secrets.IBM_CLOUD_API_KEY }}" -r "${{ secrets.IBM_CLOUD_REGION }}"
-          ibmcloud ce project select --name "${{ secrets.CODE_ENGINE_PROJECT }}"
+          ibmcloud login --apikey "$IBM_CLOUD_API_KEY" -r "$IBM_CLOUD_REGION"
+          ibmcloud ce project select --name "$CODE_ENGINE_PROJECT"
 
       - name: Deploy each service revision
+        if: steps.deployment_secrets.outputs.configured == 'true'
+        env:
+          ICR_REGISTRY: ${{ secrets.ICR_REGISTRY }}
+          ICR_NAMESPACE: ${{ secrets.ICR_NAMESPACE }}
         run: |
-          ibmcloud ce app update --name sentiment-analyzer --image "${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/cars-dealership-sentiment:${{ github.sha }}"
-          ibmcloud ce app update --name node-app --image "${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/cars-dealership-node:${{ github.sha }}"
-          ibmcloud ce app update --name django-app --image "${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/cars-dealership-django:${{ github.sha }}"
-          ibmcloud ce app update --name frontend --image "${{ secrets.ICR_REGISTRY }}/${{ secrets.ICR_NAMESPACE }}/cars-dealership-frontend:${{ github.sha }}"
+          ibmcloud ce app update --name sentiment-analyzer --image "$ICR_REGISTRY/$ICR_NAMESPACE/cars-dealership-sentiment:${{ github.sha }}"
+          ibmcloud ce app update --name node-app --image "$ICR_REGISTRY/$ICR_NAMESPACE/cars-dealership-node:${{ github.sha }}"
+          ibmcloud ce app update --name django-app --image "$ICR_REGISTRY/$ICR_NAMESPACE/cars-dealership-django:${{ github.sha }}"
+          ibmcloud ce app update --name frontend --image "$ICR_REGISTRY/$ICR_NAMESPACE/cars-dealership-frontend:${{ github.sha }}"
