@@ -4,5 +4,6 @@
   { "id": 3, "full_name": "Cars Dealership - Chicago Loop", "short_name": "Chicago Loop", "street": "200 W Madison St", "city": "Chicago", "state": "IL", "zip": "60606", "lat": 41.8781, "long": -87.6298 },
   { "id": 4, "full_name": "Cars Dealership - Denver Metro", "short_name": "Denver Metro", "street": "1600 Broadway", "city": "Denver", "state": "CO", "zip": "80202", "lat": 39.7392, "long": -104.9903 },
   { "id": 5, "full_name": "Cars Dealership - Miami Bay", "short_name": "Miami Bay", "street": "100 Biscayne Blvd", "city": "Miami", "state": "FL", "zip": "33131", "lat": 25.7617, "long": -80.1918 },
-  { "id": 6, "full_name": "Cars Dealership - Seattle Harbor", "short_name": "Seattle Harbor", "street": "400 Pine St", "city": "Seattle", "state": "WA", "zip": "98101", "lat": 47.6062, "long": -122.3321 }
+  { "id": 6, "full_name": "Cars Dealership - Seattle Harbor", "short_name": "Seattle Harbor", "street": "400 Pine St", "city": "Seattle", "state": "WA", "zip": "98101", "lat": 47.6062, "long": -122.3321 },
+  { "id": 7, "full_name": "Cars Dealership - Kansas City", "short_name": "Kansas City", "street": "700 Main St", "city": "Kansas City", "state": "KS", "zip": "66101", "lat": 39.1141, "long": -94.6275 }
 ]

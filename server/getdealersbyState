@@ -1,3 +1,3 @@
-curl -X GET http://localhost:3030/fetchDealers/TX
+curl -X GET http://localhost:3030/fetchDealers/KS
 
-[{"_id":"6a54de03b1b08bbc3a615e0b","id":1,"full_name":"Cars Dealership - Austin Central","short_name":"Austin Central","street":"500 Congress Ave","city":"Austin","state":"TX","zip":"78701","lat":30.2672,"long":-97.7431,"__v":0},{"_id":"6a54de03b1b08bbc3a615e0c","id":2,"full_name":"Cars Dealership - Dallas North","short_name":"Dallas North","street":"2100 Ross Ave","city":"Dallas","state":"TX","zip":"75201","lat":32.7767,"long":-96.797,"__v":0}]
+[{"_id":"6a54f42141baa165d6b255cf","id":7,"full_name":"Cars Dealership - Kansas City","short_name":"Kansas City","street":"700 Main St","city":"Kansas City","state":"KS","zip":"66101","lat":39.1141,"long":-94.6275,"__v":0}]
