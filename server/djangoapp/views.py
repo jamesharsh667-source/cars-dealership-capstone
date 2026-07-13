@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import CarMake, CarModel
+from .models import CarModel
 from .restapis import (
     analyze_review_sentiments,
     get_dealer_by_id_from_cf,

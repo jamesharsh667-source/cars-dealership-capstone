@@ -31,7 +31,9 @@ class CarModel(models.Model):
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=10, choices=CAR_TYPES, default=SEDAN)
     year = models.IntegerField(default=2025)
-    dealer_id = models.IntegerField(help_text="ID of the dealership (from the Node/Mongo service) that carries this model")
+    dealer_id = models.IntegerField(
+        help_text="ID of the dealership (from the Node/Mongo service) that carries this model"
+    )
 
     def __str__(self):
         return f"{self.year} {self.car_make.name} {self.name}"
